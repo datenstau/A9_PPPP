@@ -1,7 +1,6 @@
 const PPPP = require('./pppp')
 
 const p = new PPPP()
-const speaker = require('./speaker')
 
 p.on('connected', (data) => {
   console.log('connected!', data)
