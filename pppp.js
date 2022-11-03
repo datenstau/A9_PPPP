@@ -36,6 +36,7 @@ class PPPP extends EventEmitter {
     this.lastVideoFrame = -1
     this.videoBoundaries = new Set()
     this.videoReceived = []
+    this.videoOverflow = false
 
     this.lastAudioFrame = -1
 
@@ -133,9 +134,24 @@ class PPPP extends EventEmitter {
 
         //handle Video
         if (p.channel == 1) {
+          //handle MSG_DRW packet index overflow
+          if (p.index > 65400) {
+            this.videoOverflow = true
+            // console.log('Overflow incoming...')
+          }
+
+          if (this.videoOverflow && p.index < 65400) {
+            this.lastVideoFrame = -1
+            this.videoOverflow = false
+            this.videoBoundaries.clear()
+            this.videoReceived = []
+            // console.log('Overflow handled!')
+          }
+
           if (0 === p.data.indexOf(Buffer.from('55aa15a80300', 'hex'))) {
             this.videoReceived[p.index] = p.data.subarray(0x20)
             this.videoBoundaries.add(p.index)
+            // console.log('Got boundary for video', p.index)
             // console.log('Boundaries:', this.videoBoundaries)
             // visualize()
           } else {
