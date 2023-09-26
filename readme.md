@@ -1,9 +1,9 @@
-# HDWiFiCam Pro (DGOA WiFi Prefix) JS-Api
+# HDWiFiCam Pro (DGOA/DGOC WiFi Prefix) JS-Api
 
 Thanks to all the people in this [Home Assistant Community](https://community.home-assistant.io/t/popular-a9-mini-wi-fi-camera-the-ha-challenge/230108) thread.
 
 This code is tested for a cheap WiFi cam with software version "A9_IPC_20220506 10:41:05" and the "HB3_V0.3D210726" marking on the PCB.
-This Camera opens a WiFi Access Point with the "DGOA" prefix and works with the HDWiFiCam Pro App.
+This Camera opens a WiFi Access Point with the "DGOA" or "DGOC" prefix and works with the HDWiFiCam Pro App.
 
 ![HB3_V0.3D210726](camera.jpg 'HB3_V0.3D210726')
 
@@ -16,3 +16,9 @@ Video is received as MJPEG stream, the audio samples are [ADPCM](https://github.
 
 The `run.js` starts a webserver on port 3000 wich serves the mjpeg data.
 The `run_with_audio.js` additionally plays audio using the npm plugin [speaker](https://www.npmjs.com/package/speaker).
+
+
+**If you have the "DGOC" prefix, you may need to change the boradcast address:**
+If your run.js dosent connect ('Broadcast message sent' line on screen that just repeats), use the option '-b 192.168.0.255'.
+
+Replace the '192.168.0.' part with your own wifi ip range.
