@@ -110,6 +110,8 @@ class PPPP extends EventEmitter {
 
         // this.send(crypt.encrypt(buf).toString("hex"))
         this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
       }
 
       //handle MSG_DRW
@@ -124,6 +126,7 @@ class PPPP extends EventEmitter {
         buf.writeUInt16BE(1, 6)
         buf.writeUInt16BE(p.index, 8)
 
+        this.send(crypt.encrypt(buf).toString('hex'))
         this.send(crypt.encrypt(buf).toString('hex'))
         this.send(crypt.encrypt(buf).toString('hex'))
 
