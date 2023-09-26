@@ -1,6 +1,17 @@
-const PPPP = require('./pppp')
+const commander = require('commander')
 
-const p = new PPPP()
+commander
+.version('1.0.0', '-v, --version')
+.usage('[OPTIONS]...')
+.option('-p, --port <value>', 'port number to use, default 3000', 3000)
+.option('-t, --thisip <value>','IP of the interface to bind')
+.option('-b, --broadcastip <value>','IP of the interface to bind','255.255.255.255')
+.parse(process.argv);
+
+const options = commander.opts()
+console.log(options)
+const PPPP = require('./pppp')
+const p = new PPPP(options)
 
 p.on('connected', (data) => {
   console.log('connected!', data)
@@ -38,7 +49,7 @@ const server = http.createServer((req, res) => {
   }
 })
 
-server.listen(3000)
+server.listen(options.port)
 
 process.on('SIGINT', () => {
   server.close()

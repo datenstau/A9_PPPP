@@ -25,7 +25,7 @@ TYPE_DICT[MSG_ALIVE_ACK] = 'MSG_ALIVE_ACK'
 TYPE_DICT[MSG_CLOSE] = 'MSG_CLOSE'
 
 class PPPP extends EventEmitter {
-  constructor() {
+  constructor(options) {  
     super()
     this.socket = dgram.createSocket('udp4')
 
@@ -42,6 +42,9 @@ class PPPP extends EventEmitter {
 
     this.isConnected = false
     this.punchCount = 0
+
+    this.broadcastDestination=options.broadcastip, 
+    this.myIpAddressToBind=options.thisip
 
     this.socket.on('error', (err) => {
       console.log(`socket error:\n${err.stack}`)
@@ -64,7 +67,7 @@ class PPPP extends EventEmitter {
       }
 
       let p = this.parsePacket(d)
-      // console.log(TYPE_DICT[p.type], p.size, p.channel, p.index)
+      //console.log(TYPE_DICT[p.type], p.size, p.channel, p.index)
       if (p.type == MSG_DRW) {
         this.emit(
           'log',
@@ -180,7 +183,12 @@ class PPPP extends EventEmitter {
       }
     })
 
-    this.socket.bind()
+    let bindOptions = {}
+    if (this.myIpAddressToBind){
+      bindOptions.address = this.myIpAddressToBind
+    }    
+    console.log("bind options:"+bindOptions)
+    this.socket.bind(bindOptions)
   }
 
   setDebugIp(ip) {
@@ -190,8 +198,8 @@ class PPPP extends EventEmitter {
   sendBroadcast() {
     const message = Buffer.from('2cba5f5d', 'hex')
 
-    this.socket.send(message, 32108, '255.255.255.255')
-    console.log('Broadcast Message sent.')
+    this.socket.send(message, 32108, this.broadcastDestination)
+    console.log('broadcast Message sent.')
 
     if (!this.isConnected && this.punchCount == 0) {
       setTimeout(this.sendBroadcast.bind(this), 100)
@@ -389,9 +397,10 @@ class PPPP extends EventEmitter {
 
     // console.log(completeness)
     if (complete) {
-      console.log(
+      /*console.log(
         `------------>>>>>> GOT VIDEO FRAME FROM ${index} to ${lastIndex}`
       )
+      */
       this.lastVideoFrame = index
       this.emit('videoFrame', { frame: Buffer.concat(out), packetIndex: index })
 

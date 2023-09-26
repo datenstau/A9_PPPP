@@ -1,6 +1,20 @@
+const commander = require('commander')
+
+commander
+.version('1.0.0', '-v, --version')
+.usage('[OPTIONS]...')
+.option('-p, --port <value>', 'port number to use, default 3000', 3000)
+.option('-t, --thisip <value>','IP of the interface to bind')
+.option('-b, --broadcastip <value>','IP of the interface to bind','255.255.255.255')
+.parse(process.argv);
+
+const options = commander.opts()
+console.log(options)
+
+
 const PPPP = require('./pppp')
 
-const p = new PPPP()
+const p = new PPPP(options)
 const speaker = require('./speaker')
 
 p.on('connected', (data) => {
