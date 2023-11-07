@@ -352,6 +352,21 @@ class PPPP extends EventEmitter {
     )
   }
 
+  sendCMDTalkSend() {
+    // it is unclear for me what this really does
+    this.sendCMDPacket(
+      `{"pro":"talk_send","cmd":300,"user":"admin","pwd":"6666","isSend":1}`
+    )
+    /*
+    returns like:
+    {
+        "cmd":  300,
+        "result":       0
+    }
+    */
+  }
+
+
   sendCMDGetWhiteLight() {
     this.sendCMDPacket(
       `{"pro":"get_whiteLight","cmd":305,"user":"admin","pwd":"6666"}`
@@ -390,6 +405,18 @@ class PPPP extends EventEmitter {
         "supportNewUp": 1
     }
     */
+
+  /* incorrect password:
+  {
+        "cmd":  9000,
+        "result":       -3
+}*/
+  /* incorrect user name: (or password field missing)
+  {
+        "cmd":  9000,
+        "result":       -1
+}*/
+
   }
 
   sendCMDGetAlarm() {
