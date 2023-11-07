@@ -263,56 +263,62 @@ class PPPP extends EventEmitter {
     this.sendEnc(buf)
   }
 
+  sendCommand(command_name, command_number, args) {
+    let fixed_data = {
+      user: 'admin',
+      pwd: '6666',
+      devmac:'0000'
+    }
+
+    let data = {
+      pro: command_name,
+      cmd: command_number
+    }
+
+    this.sendCMDPacket(JSON.stringify({ ...data, ...args, ...fixed_data}))
+  }
+
   sendCMDCheckUser() {
-    this.sendCMDPacket(
-      `{"pro":"check_user","cmd":100,"devmac":"0000","user":"admin","pwd":"6666"}`
-    )
+    this.sendCommand("check_user", 100);
   }
 
   sendCMDrequestVideo1() {
     //"1080p" "HD" with 640x480
-    this.sendCMDPacket(
-      `{"pro":"stream","cmd":111,"video":1,"user":"admin","pwd":"6666","devmac":"0000"}`
-    )
+    this.sendCommand("stream", 111, { video: 1 });
   }
 
   sendCMDrequestVideo2() {
     //"720p" "HD" with 320x240
-    this.sendCMDPacket(
-      `{"pro":"stream","cmd":111,"video":2,"user":"admin","pwd":"6666","devmac":"0000"}`
-    )
+    this.sendCommand("stream", 111, { video: 2 });
   }
 
   sendCMDrequestAudio() {
     //Strange ADPCM format
-    this.sendCMDPacket(
-      `{"pro":"stream","cmd":111,"audio":1,"user":"admin","pwd":"6666"}`
-    )
+    this.sendCommand("stream", 111, { audio: 1 });
   }
 
   sendCMDsetWifi(ssid, pw) {
-    this.sendCMDPacket(
-      `{"pro":"set_wifi","cmd":114,"user":"admin","pwd":"6666","wifissid":"${ssid}","wifipwd":"${pw}","encwifissid":"${ssid}","encwifipwd":"${pw}","encryption":1,"devmac":"0000"}`
-    )
+    this.sendCommand("set_wifi", 114,
+    { wifissid: ssid,
+      encwifissid: ssid,
+      wifipwd: pw,
+      encwifipwd: pw,
+      encryption: 1
+    });
   }
 
   sendCMDscanWifi() {
-    this.sendCMDPacket(
-      `{"pro":"scan_wifi","cmd": 113,"user":"admin","pwd":"6666","devmac":"0000"}`
-    )
+    this.sendCommand("scan_wifi", 113);
   }
 
   sendCMDgetWifi() {
-    this.sendCMDPacket(
-      `{"pro":"get_wifi","cmd": 112,"user":"admin","pwd":"6666","devmac":"0000"}`
-    )
+    this.sendCommand("get_wifi", 112);
   }
 
   sendCMDgetParams() {
-    this.sendCMDPacket(
-      `{"pro":"get_parms","cmd":101,"user":"admin","pwd":"6666","devmac":"0000"}`
-    )
-      /* returns e.g.
+    this.sendCommand("get_parms", 101);
+
+    /* returns e.g.
     {
         "cmd":  101,
         "result":       0,
@@ -332,31 +338,14 @@ class PPPP extends EventEmitter {
     */
   }
 
-  sendCMDsetParams(changes) {
-    let data = {
-      pro: 'dev_control',
-      cmd: 102,
-      user: 'admin',
-      pwd: '6666',
-      devmac: '0000',
-    }
-
-    this.sendCMDPacket(JSON.stringify({ ...data, ...changes }))
-  }
-
   sendCMDIr(isOn) {
-    this.sendCMDPacket(
-      `{"pro":"dev_control","cmd":102,"user":"admin","pwd":"6666","icut":${
-        isOn ? 1 : 0
-      },"devmac":"0000"}`
-    )
+    this.sendCommand("dev_control", 102, { icut: isOn ? 1 : 0});
   }
 
   sendCMDTalkSend() {
     // it is unclear for me what this really does
-    this.sendCMDPacket(
-      `{"pro":"talk_send","cmd":300,"user":"admin","pwd":"6666","isSend":1}`
-    )
+    this.sendCommand("talk_send", 300, { isSend: 1 });
+
     /*
     returns like:
     {
@@ -368,29 +357,20 @@ class PPPP extends EventEmitter {
 
 
   sendCMDGetWhiteLight() {
-    this.sendCMDPacket(
-      `{"pro":"get_whiteLight","cmd":305,"user":"admin","pwd":"6666"}`
-    )
+    this.sendCommand("get_whiteLight", 305);
   }
 
   sendCMDSetWhiteLight(isOn) {
-    this.sendCMDPacket(
-      `{"pro":"set_whiteLight","cmd":304,"user":"admin","pwd":"6666","status":${
-        isOn ? 1 : 0
-      }}`
-    )
+    this.sendCommand("set_whiteLight", 304, { status: isOn ? 1 : 0});
   }
 
   sendCMDHeartBeat() {
-    this.sendCMDPacket(
-      `{"pro":"dev_control","cmd":102,"user":"admin","pwd":"6666","heart":1,"devmac":"0000"}`
-    )
+    this.sendCommand("dev_control", 102, { heart: 1 });
   }
 
   sendCMDGetDeviceFirmwareInfo() {
-    this.sendCMDPacket(
-      `{"pro":"get_cloudsupport","cmd":9000,"user":"admin","pwd":"6666"}`
-    )
+    this.sendCommand("get_cloudsupport", 9000);
+
       /*
       the command name is a mis-nomer. this is more like TF card support,
       firmware version and flashability. Returns something like:
@@ -420,9 +400,8 @@ class PPPP extends EventEmitter {
   }
 
   sendCMDGetAlarm() {
-    this.sendCMDPacket(
-      `{"pro":"get_alarm","cmd":107,"user":"admin","pwd":"6666"}`
-    )
+    this.sendCommand("get_alarm", 107);
+
     /*
     Returns something like:
     {
@@ -445,21 +424,15 @@ class PPPP extends EventEmitter {
   // 1 = stop motor in A axis
   // etc
   sendCMDPtzControl(direction) {
-    this.sendCMDPacket(
-    `{"pro":"ptz_control","cmd":128,"parms":0,"value":${direction},"user":"admin","pwd":"6666"}`
-  )
+    this.sendCommand("ptz_control", 128, { parms: 0, value: direction});
   }
 
   sendCMDReboot() {
-    this.sendCMDPacket(
-      `{"pro":"dev_control","cmd":102,"user":"admin","pwd":"6666","reboot":1,"devmac":"0000"}`
-    )
+    this.sendCommand("dev_control", 102, { reboot: 1});
   }
 
   sendCMDReset() {
-    this.sendCMDPacket(
-      `{"pro":"dev_control","cmd":102,"user":"admin","pwd":"6666","reset":1,"devmac":"0000"}`
-    )
+    this.sendCommand("dev_control", 102, { reset: 1});
   }
 
   parsePacket(buff) {
