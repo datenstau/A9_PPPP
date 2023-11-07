@@ -378,6 +378,48 @@ class PPPP extends EventEmitter {
     */
   }
 
+
+  sendCMDGetDeviceFirmwareInfo() {
+    this.sendCMDPacket(
+      `{"pro":"get_cloudsupport","cmd":9000,"user":"admin","pwd":"6666"}`
+    )
+      /*
+      the command name is a mis-nomer. this is more like TF card support,
+      firmware version and flashability. Returns something like:
+      {
+        "cmd":  9000,
+        "result":       0,
+        "flashOrTf":    1,
+        "uploadType":   0,
+        "isExistTf":    0,
+        "productName":  "HQLS_HK66_DP230802",
+        "fwVer":        10000,
+        "supportNewUp": 1
+    }
+    */
+  }
+
+  sendCMDGetAlarm() {
+    this.sendCMDPacket(
+      `{"pro":"get_alarm","cmd":107,"user":"admin","pwd":"6666"}`
+    )
+    /*
+    Returns something like:
+    {
+        "cmd":  107,
+        "result":       0,
+        "pirenable":    0,
+        "pirsensitive": 3,
+        "pirvideo":     0,
+        "pirPush":      0,
+        "pirvideotime": 10,
+        "pirDelayTime": 120,
+        "AalarmInterval":       2,
+        "pirCloudUpCount":      50
+    }
+    */
+  }
+
   // direction == 0..7:
   // 0 = start motor in A axis
   // 1 = stop motor in A axis
