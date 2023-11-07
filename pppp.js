@@ -334,6 +334,60 @@ class PPPP extends EventEmitter {
     )
   }
 
+  sendCMDGetWhiteLight() {
+    this.sendCMDPacket(
+      `{"pro":"get_whiteLight","cmd":305,"user":"admin","pwd":"6666"}`
+    )
+  }
+
+  sendCMDSetWhiteLight(isOn) {
+    this.sendCMDPacket(
+      `{"pro":"set_whiteLight","cmd":304,"user":"admin","pwd":"6666","status":${
+        isOn ? 1 : 0
+      }}`
+    )
+  }
+
+  sendCMDHeartBeat() {
+    this.sendCMDPacket(
+      `{"pro":"dev_control","cmd":102,"user":"admin","pwd":"6666","heart":1,"devmac":"0000"}`
+    )
+  }
+
+  sendCMDGetDeviceParameters() {
+    this.sendCMDPacket(
+      `{"pro":"get_parms","cmd":101,"user":"admin","pwd":"6666"}`
+    )
+    /* returns e.g.
+    {
+        "cmd":  101,
+        "result":       0,
+        "tz":   -8,
+        "time": 1699397280,
+        "icut": 0,
+        "batValue":     90,
+        "batStatus":    1,
+        "sysver":       "HQLS_HK66_DP_20230802 20:08:13",
+        "mcuver":       "1.1.1.1",
+        "isShow4KMenu": 0,
+        "isShowIcutAuto":       1,
+        "rotmir":       0,
+        "signal":       100,
+        "lamp": 0
+}
+    */
+  }
+
+  // direction == 0..7:
+  // 0 = start motor in A axis
+  // 1 = stop motor in A axis
+  // etc
+  sendCMDPtzControl(direction) {
+    this.sendCMDPacket(
+    `{"pro":"ptz_control","cmd":128,"parms":0,"value":${direction},"user":"admin","pwd":"6666"}`
+  )
+  }
+
   sendCMDReboot() {
     this.sendCMDPacket(
       `{"pro":"dev_control","cmd":102,"user":"admin","pwd":"6666","reboot":1,"devmac":"0000"}`
