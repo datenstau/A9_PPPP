@@ -24,6 +24,35 @@ TYPE_DICT[MSG_ALIVE] = 'MSG_ALIVE'
 TYPE_DICT[MSG_ALIVE_ACK] = 'MSG_ALIVE_ACK'
 TYPE_DICT[MSG_CLOSE] = 'MSG_CLOSE'
 
+const CMD_CHECK_USER = 100
+const CMD_GET_PARMS = 101
+const CMD_DEV_CONTROL = 102
+const CMD_GET_ALARM = 107
+const CMD_STREAM = 111
+const CMD_GET_WIFI = 112
+const CMD_SCAN_WIFI = 113
+const CMD_SET_WIFI = 114
+const CMD_PTZ_CONTROL = 128
+const CMD_TALK_SEND = 300
+const CMD_SET_WHITELIGHT = 304
+const CMD_GET_WHITELIGHT = 305
+const CMD_GET_CLOUD_SUPPORT = 9000
+
+const CMD_DICT = {}
+CMD_DICT[CMD_CHECK_USER] = 'check_user'
+CMD_DICT[CMD_GET_PARMS] = 'get_parms'
+CMD_DICT[CMD_DEV_CONTROL] = 'dev_control'
+CMD_DICT[CMD_GET_ALARM] = 'get_alarm'
+CMD_DICT[CMD_STREAM] = 'stream'
+CMD_DICT[CMD_GET_WIFI] = 'get_wifi'
+CMD_DICT[CMD_SCAN_WIFI] = 'scan_wifi'
+CMD_DICT[CMD_SET_WIFI] = 'set_wifi'
+CMD_DICT[CMD_PTZ_CONTROL] = 'ptz_control'
+CMD_DICT[CMD_TALK_SEND] = 'talk_send'
+CMD_DICT[CMD_SET_WHITELIGHT] = 'set_whiteLight'
+CMD_DICT[CMD_GET_WHITELIGHT] = 'get_whiteLight'
+CMD_DICT[CMD_GET_CLOUD_SUPPORT] = 'get_cloudsupport'
+
 class PPPP extends EventEmitter {
   constructor(options) {
     super()
@@ -263,7 +292,7 @@ class PPPP extends EventEmitter {
     this.sendEnc(buf)
   }
 
-  sendCommand(command_name, command_number, args) {
+  sendCommand(command, args) {
     let fixed_data = {
       user: 'admin',
       pwd: '6666',
@@ -271,35 +300,35 @@ class PPPP extends EventEmitter {
     }
 
     let data = {
-      pro: command_name,
-      cmd: command_number
+      pro: CMD_DICT[command],
+      cmd: command
     }
 
     this.sendCMDPacket(JSON.stringify({ ...data, ...args, ...fixed_data}))
   }
 
   sendCMDCheckUser() {
-    this.sendCommand("check_user", 100);
+    this.sendCommand(CMD_CHECK_USER);
   }
 
   sendCMDrequestVideo1() {
     //"1080p" "HD" with 640x480
-    this.sendCommand("stream", 111, { video: 1 });
+    this.sendCommand(CMD_STREAM, { video: 1 });
   }
 
   sendCMDrequestVideo2() {
     //"720p" "HD" with 320x240
-    this.sendCommand("stream", 111, { video: 2 });
+    this.sendCommand(CMD_STREAM, { video: 2 });
   }
 
   sendCMDrequestAudio() {
     //Strange ADPCM format
-    this.sendCommand("stream", 111, { audio: 1 });
+    this.sendCommand(CMD_STREAM, { audio: 1 });
   }
 
   sendCMDsetWifi(ssid, pw) {
-    this.sendCommand("set_wifi", 114,
-    { wifissid: ssid,
+    this.sendCommand(CMD_SET_WIFI, {
+      wifissid: ssid,
       encwifissid: ssid,
       wifipwd: pw,
       encwifipwd: pw,
@@ -308,15 +337,15 @@ class PPPP extends EventEmitter {
   }
 
   sendCMDscanWifi() {
-    this.sendCommand("scan_wifi", 113);
+    this.sendCommand(CMD_SCAN_WIFI);
   }
 
   sendCMDgetWifi() {
-    this.sendCommand("get_wifi", 112);
+    this.sendCommand(CMD_GET_WIFI);
   }
 
   sendCMDgetParams() {
-    this.sendCommand("get_parms", 101);
+    this.sendCommand(CMD_GET_PARMS);
 
     /* returns e.g.
     {
@@ -339,12 +368,12 @@ class PPPP extends EventEmitter {
   }
 
   sendCMDIr(isOn) {
-    this.sendCommand("dev_control", 102, { icut: isOn ? 1 : 0});
+    this.sendCommand(CMD_DEV_CONTROL, { icut: isOn ? 1 : 0});
   }
 
   sendCMDTalkSend() {
     // it is unclear for me what this really does
-    this.sendCommand("talk_send", 300, { isSend: 1 });
+    this.sendCommand(CMD_TALK_SEND, { isSend: 1 });
 
     /*
     returns like:
@@ -357,19 +386,19 @@ class PPPP extends EventEmitter {
 
 
   sendCMDGetWhiteLight() {
-    this.sendCommand("get_whiteLight", 305);
+    this.sendCommand(CMD_GET_WHITELIGHT);
   }
 
   sendCMDSetWhiteLight(isOn) {
-    this.sendCommand("set_whiteLight", 304, { status: isOn ? 1 : 0});
+    this.sendCommand(CMD_SET_WHITELIGHT, { status: isOn ? 1 : 0});
   }
 
   sendCMDHeartBeat() {
-    this.sendCommand("dev_control", 102, { heart: 1 });
+    this.sendCommand(CMD_DEV_CONTROL, { heart: 1 });
   }
 
   sendCMDGetDeviceFirmwareInfo() {
-    this.sendCommand("get_cloudsupport", 9000);
+    this.sendCommand(CMD_GET_CLOUD_SUPPORT);
 
       /*
       the command name is a mis-nomer. this is more like TF card support,
@@ -400,7 +429,7 @@ class PPPP extends EventEmitter {
   }
 
   sendCMDGetAlarm() {
-    this.sendCommand("get_alarm", 107);
+    this.sendCommand(CMD_GET_ALARM);
 
     /*
     Returns something like:
@@ -424,15 +453,15 @@ class PPPP extends EventEmitter {
   // 1 = stop motor in A axis
   // etc
   sendCMDPtzControl(direction) {
-    this.sendCommand("ptz_control", 128, { parms: 0, value: direction});
+    this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: direction});
   }
 
   sendCMDReboot() {
-    this.sendCommand("dev_control", 102, { reboot: 1});
+    this.sendCommand(CMD_DEV_CONTROL, { reboot: 1});
   }
 
   sendCMDReset() {
-    this.sendCommand("dev_control", 102, { reset: 1});
+    this.sendCommand(CMD_DEV_CONTROL, { reset: 1});
   }
 
   parsePacket(buff) {
