@@ -25,7 +25,7 @@ TYPE_DICT[MSG_ALIVE_ACK] = 'MSG_ALIVE_ACK'
 TYPE_DICT[MSG_CLOSE] = 'MSG_CLOSE'
 
 class PPPP extends EventEmitter {
-  constructor(options) {  
+  constructor(options) {
     super()
     this.socket = dgram.createSocket('udp4')
 
@@ -43,7 +43,7 @@ class PPPP extends EventEmitter {
     this.isConnected = false
     this.punchCount = 0
 
-    this.broadcastDestination=options.broadcastip, 
+    this.broadcastDestination=options.broadcastip,
     this.myIpAddressToBind=options.thisip
 
     this.socket.on('error', (err) => {
@@ -186,7 +186,7 @@ class PPPP extends EventEmitter {
     let bindOptions = {}
     if (this.myIpAddressToBind){
       bindOptions.address = this.myIpAddressToBind
-    }    
+    }
     console.log("bind options:"+bindOptions)
     this.socket.bind(bindOptions)
   }
