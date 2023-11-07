@@ -298,6 +298,19 @@ class PPPP extends EventEmitter {
       pwd: '6666',
       devmac:'0000'
     }
+  /* incorrect password:
+  {
+        "cmd":  ...,
+        "result":       -3
+  }
+
+  incorrect user name: (or password field missing):
+  {
+        "cmd":  ...,
+        "result":       -1
+}*/
+
+
 
     let data = {
       pro: CMD_DICT[command],
@@ -414,18 +427,6 @@ class PPPP extends EventEmitter {
         "supportNewUp": 1
     }
     */
-
-  /* incorrect password:
-  {
-        "cmd":  9000,
-        "result":       -3
-}*/
-  /* incorrect user name: (or password field missing)
-  {
-        "cmd":  9000,
-        "result":       -1
-}*/
-
   }
 
   sendCMDGetAlarm() {
