@@ -53,6 +53,15 @@ CMD_DICT[CMD_SET_WHITELIGHT] = 'set_whiteLight'
 CMD_DICT[CMD_GET_WHITELIGHT] = 'get_whiteLight'
 CMD_DICT[CMD_GET_CLOUD_SUPPORT] = 'get_cloudsupport'
 
+const PTZ_TILT_UP_START = 0
+const PTZ_TILT_UP_STOP = 1
+const PTZ_TILT_DOWN_START = 2
+const PTZ_TILT_DOWN_STOP = 3
+const PTZ_PAN_LEFT_START = 4
+const PTZ_PAN_LEFT_STOP = 5
+const PTZ_PAN_RIGHT_START = 6
+const PTZ_PAN_RIGHT_STOP = 7
+
 class PPPP extends EventEmitter {
   constructor(options) {
     super()
@@ -449,10 +458,7 @@ class PPPP extends EventEmitter {
     */
   }
 
-  // direction == 0..7:
-  // 0 = start motor in A axis
-  // 1 = stop motor in A axis
-  // etc
+  // For direction, use any of the PTZ_PAN/TILT constants
   sendCMDPtzControl(direction) {
     this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: direction});
   }
