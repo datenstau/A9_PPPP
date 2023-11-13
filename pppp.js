@@ -24,30 +24,40 @@ TYPE_DICT[MSG_ALIVE] = 'MSG_ALIVE'
 TYPE_DICT[MSG_ALIVE_ACK] = 'MSG_ALIVE_ACK'
 TYPE_DICT[MSG_CLOSE] = 'MSG_CLOSE'
 
+const CMD_SET_CYPUSH = 1
 const CMD_CHECK_USER = 100
 const CMD_GET_PARMS = 101
 const CMD_DEV_CONTROL = 102
+const CMD_EDIT_USER = 106
 const CMD_GET_ALARM = 107
+const CMD_SET_ALARM = 108
 const CMD_STREAM = 111
 const CMD_GET_WIFI = 112
 const CMD_SCAN_WIFI = 113
 const CMD_SET_WIFI = 114
+const CMD_SET_DATETIME = 126 // returns result as cmd 128...
 const CMD_PTZ_CONTROL = 128
+const CMD_GET_RECORD_PARAM = 199
 const CMD_TALK_SEND = 300
 const CMD_SET_WHITELIGHT = 304
 const CMD_GET_WHITELIGHT = 305
 const CMD_GET_CLOUD_SUPPORT = 9000
 
 const CMD_DICT = {}
+CMD_DICT[CMD_SET_CYPUSH] = 'set_cypush'
 CMD_DICT[CMD_CHECK_USER] = 'check_user'
 CMD_DICT[CMD_GET_PARMS] = 'get_parms'
 CMD_DICT[CMD_DEV_CONTROL] = 'dev_control'
+CMD_DICT[CMD_EDIT_USER] = 'edit_user'
 CMD_DICT[CMD_GET_ALARM] = 'get_alarm'
+CMD_DICT[CMD_SET_ALARM] = 'set_alarm'
 CMD_DICT[CMD_STREAM] = 'stream'
 CMD_DICT[CMD_GET_WIFI] = 'get_wifi'
 CMD_DICT[CMD_SCAN_WIFI] = 'scan_wifi'
 CMD_DICT[CMD_SET_WIFI] = 'set_wifi'
+CMD_DICT[CMD_SET_DATETIME] = 'set_datetime'
 CMD_DICT[CMD_PTZ_CONTROL] = 'ptz_control'
+CMD_DICT[CMD_GET_RECORD_PARAM] = 'get_record_param'
 CMD_DICT[CMD_TALK_SEND] = 'talk_send'
 CMD_DICT[CMD_SET_WHITELIGHT] = 'set_whiteLight'
 CMD_DICT[CMD_GET_WHITELIGHT] = 'get_whiteLight'
@@ -366,6 +376,10 @@ class PPPP extends EventEmitter {
     this.sendCommand(CMD_GET_WIFI);
   }
 
+  sendCMDgetRecordParam() {
+    this.sendCommand(CMD_GET_RECORD_PARAM);
+  }
+
   sendCMDgetParams() {
     this.sendCommand(CMD_GET_PARMS);
 
@@ -419,6 +433,69 @@ class PPPP extends EventEmitter {
     this.sendCommand(CMD_DEV_CONTROL, { heart: 1 });
   }
 
+  /*
+  my_timezone_offset means: when the device interprets the timestamp,
+  adjust according to this offset. So if my_timezone_offset is -3600,
+  the device will add (not subtract!) 3600 seconds to the timestamp given,
+  before setting it.
+
+  the timestamp is in seconds since epoch.
+
+  this method do not set the local timezone of the device, as reported by
+  get_parms. (I don't know how to do that, if even possible)
+  */
+  sendCMDsetDateTime(my_timezone_offset, timestamp) {
+    this.sendCommand(CMD_SET_DATETIME, {
+      tz: my_timezone_offset,
+      time: timestamp,
+    });
+  }
+
+  sendCMDsetPushServer() {
+    this.sendCommand(CMD_SET_CYPUSH,
+      {
+        "pushIp": "192.168.7.20",
+        "pushPort": 5432,
+      }
+    );
+    var unused_args =  {
+       "pushInterval": 30,
+       "isPushVideo": 0,
+       "isPushPic": 0,
+       "cyAdmin": "<username>",
+       "cyPwd": "<password>",
+    };
+  }
+
+  sendCMDsetAlarm() {
+    this.sendCommand(CMD_SET_ALARM,      {
+      "pirPush": 1,
+      "pirenable": 1,
+      "pirsensitive": 2,
+      "pirDelayTime": 5,
+      "pirvideo": 0,
+      "pirvideotime": 0,
+      }
+    );
+
+    //  "pirsensitive": 1, -- almost never triggers, 3 -- triggers most often
+  }
+
+  sendCMDeditUser(userToEdit, newPwd, newUsername) {
+    this.sendCommand(CMD_EDIT_USER, {
+      "edituser" : userToEdit,
+      "newpwd" : newPwd,
+      "newuser" : newUsername,
+        }
+    );
+
+    /* additional reply:
+    {
+      "count":	1,
+    }
+    perhaps the number of times password has changed, nope, it is always 1
+    */
+
   sendCMDGetDeviceFirmwareInfo() {
     this.sendCommand(CMD_GET_CLOUD_SUPPORT);
 
@@ -461,6 +538,10 @@ class PPPP extends EventEmitter {
   // For direction, use any of the PTZ_PAN/TILT constants
   sendCMDPtzControl(direction) {
     this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: direction});
+  }
+
+  sendCMDPtzReset() {
+    this.sendCommand(CMD_PTZ_CONTROL, { parms: 1, value: 132});
   }
 
   sendCMDReboot() {
