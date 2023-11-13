@@ -618,11 +618,11 @@ class PPPP extends EventEmitter {
   }
 
   destroy() {
-    this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
-    this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
-    this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
-
-    this.socket.unref()
+    if (this.isConnected) {
+      this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
+      this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
+      this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
+    }
   }
 }
 
