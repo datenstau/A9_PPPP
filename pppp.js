@@ -495,6 +495,7 @@ class PPPP extends EventEmitter {
     }
     perhaps the number of times password has changed, nope, it is always 1
     */
+  }
 
   sendCMDGetDeviceFirmwareInfo() {
     this.sendCommand(CMD_GET_CLOUD_SUPPORT);
