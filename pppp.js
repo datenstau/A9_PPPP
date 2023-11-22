@@ -115,6 +115,59 @@ class PPPP extends EventEmitter {
       }
 
       let p = this.parsePacket(d)
+      this.handlePacket(p, msg, rinfo)
+
+    })
+
+    let bindOptions = {}
+    if (this.myIpAddressToBind){
+      bindOptions.address = this.myIpAddressToBind
+    }
+    console.log("bind options:"+bindOptions)
+    this.socket.bind(bindOptions)
+  }
+
+  setDebugIp(ip) {
+    this.IP_DEBUG_MSG = ip
+  }
+
+  sendBroadcast() {
+    const message = Buffer.from('2cba5f5d', 'hex')
+
+    this.socket.send(message, 32108, this.broadcastDestination)
+    console.log('broadcast Message sent.')
+
+    if (!this.isConnected && this.punchCount == 0) {
+      setTimeout(this.sendBroadcast.bind(this), 100)
+    }
+  }
+
+  sendEnc(msg) {
+    let message
+    if (msg instanceof Buffer) {
+      message = msg
+    } else {
+      message = Buffer.from(msg, 'hex')
+    }
+
+    this.send(crypt.encrypt(message))
+  }
+
+  send(msg) {
+    let message
+    if (msg instanceof Buffer) {
+      message = msg
+    } else {
+      message = Buffer.from(msg, 'hex')
+    }
+    this.socket.send(message, this.PORT_CAM, this.IP_CAM)
+
+    if (this.IP_DEBUG_MSG) {
+      this.socket.send(crypt.decrypt(message), 3301, this.IP_DEBUG_MSG)
+    }
+  }
+
+  handlePacket(p, msg, rinfo) {
       //console.log(TYPE_DICT[p.type], p.size, p.channel, p.index)
       if (p.type == MSG_DRW) {
         this.emit(
@@ -131,6 +184,7 @@ class PPPP extends EventEmitter {
       if (p.type == MSG_PUNCH) {
         if (this.punchCount++ < 5) {
           this.socket.send(msg, rinfo.port, rinfo.address)
+          this.emit('log', `Sent ${TYPE_DICT[MSG_PUNCH]}`)
         }
       }
 
@@ -158,6 +212,32 @@ class PPPP extends EventEmitter {
 
         // this.send(crypt.encrypt(buf).toString("hex"))
         this.sendEnc(buf)
+        this.emit('log', `Sent ${TYPE_DICT[MSG_ALIVE_ACK]}`)
+      }
+
+      // reply to MSG_CLOSE
+      if (p.type == MSG_CLOSE) {
+        let buf = Buffer.alloc(4)
+        buf.writeUint8(MCAM, 0)
+        buf.writeUInt8(MSG_ALIVE, 1)
+        buf.writeUint16BE(0, 2)
+
+        // this.send(crypt.encrypt(buf).toString("hex"))
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.sendEnc(buf)
+        this.emit('log', `Sent ${TYPE_DICT[MSG_ALIVE]}`)
       }
 
       //handle MSG_DRW
@@ -174,6 +254,15 @@ class PPPP extends EventEmitter {
 
         this.send(crypt.encrypt(buf).toString('hex'))
         this.send(crypt.encrypt(buf).toString('hex'))
+        this.send(crypt.encrypt(buf).toString('hex'))
+        this.send(crypt.encrypt(buf).toString('hex'))
+        this.send(crypt.encrypt(buf).toString('hex'))
+        this.send(crypt.encrypt(buf).toString('hex'))
+        this.send(crypt.encrypt(buf).toString('hex'))
+        this.send(crypt.encrypt(buf).toString('hex'))
+        this.send(crypt.encrypt(buf).toString('hex'))
+        this.emit('log', `Sent ${TYPE_DICT[MSG_DRW_ACK]} x3`)
+
 
         //handle CMD Response
         if (p.channel == 0) {
@@ -229,55 +318,7 @@ class PPPP extends EventEmitter {
           }
         }
       }
-    })
-
-    let bindOptions = {}
-    if (this.myIpAddressToBind){
-      bindOptions.address = this.myIpAddressToBind
     }
-    console.log("bind options:"+bindOptions)
-    this.socket.bind(bindOptions)
-  }
-
-  setDebugIp(ip) {
-    this.IP_DEBUG_MSG = ip
-  }
-
-  sendBroadcast() {
-    const message = Buffer.from('2cba5f5d', 'hex')
-
-    this.socket.send(message, 32108, this.broadcastDestination)
-    console.log('broadcast Message sent.')
-
-    if (!this.isConnected && this.punchCount == 0) {
-      setTimeout(this.sendBroadcast.bind(this), 100)
-    }
-  }
-
-  sendEnc(msg) {
-    let message
-    if (msg instanceof Buffer) {
-      message = msg
-    } else {
-      message = Buffer.from(msg, 'hex')
-    }
-
-    this.send(crypt.encrypt(message))
-  }
-
-  send(msg) {
-    let message
-    if (msg instanceof Buffer) {
-      message = msg
-    } else {
-      message = Buffer.from(msg, 'hex')
-    }
-    this.socket.send(message, this.PORT_CAM, this.IP_CAM)
-
-    if (this.IP_DEBUG_MSG) {
-      this.socket.send(crypt.decrypt(message), 3301, this.IP_DEBUG_MSG)
-    }
-  }
 
   sendCMDPacket(msg) {
     let data
