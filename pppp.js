@@ -196,7 +196,7 @@ class PPPP extends EventEmitter {
   }
 
   sendBroadcast() {
-    const message = Buffer.from('2cba5f5d', 'hex')
+    const message = Buffer.from('9fa1eeb9', 'hex')
 
     this.socket.send(message, 32108, this.broadcastDestination)
     console.log('broadcast Message sent.')
