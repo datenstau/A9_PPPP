@@ -376,8 +376,9 @@ class PPPP extends EventEmitter {
       pro: CMD_DICT[command],
       cmd: command
     }
-
-    this.sendCMDPacket(JSON.stringify({ ...data, ...args, ...fixed_data}))
+    let strData = JSON.stringify({ ...data, ...args, ...fixed_data})
+    console.log(strData)
+    this.sendCMDPacket(strData)
   }
 
   sendCMDCheckUser() {
@@ -446,6 +447,10 @@ class PPPP extends EventEmitter {
 
   sendCMDIr(isOn) {
     this.sendCommand(CMD_DEV_CONTROL, { icut: isOn ? 1 : 0});
+  }
+
+  sendCMDLamp(isOn) {
+    this.sendCommand(CMD_DEV_CONTROL, { lamp: isOn ? 1 : 0});
   }
 
   sendCMDTalkSend() {

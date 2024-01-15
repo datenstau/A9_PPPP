@@ -15,6 +15,8 @@ const p = new PPPP(options)
 
 p.on('connected', (data) => {
   console.log('connected!', data)
+  // p.sendCMDgetParams()
+  // p.sendCMDGetDeviceFirmwareInfo()
   p.sendCMDrequestVideo1()
 })
 
@@ -34,13 +36,51 @@ var videoStream = new PassThrough()
 
 const http = require('http')
 const server = http.createServer((req, res) => {
+  if (req.url === '/favicon.ico') return
+  console.log('[' + req.socket.remoteAddress + '] ' + req.method + ': ' + req.url)
   if (req.url === '/v.mjpg') {
     res.setHeader(
       'Content-Type',
       'multipart/x-mixed-replace; boundary="xxxxxxkkdkdkdkdkdk__BOUNDARY"'
     )
     videoStream.pipe(res)
-  } else if (req.url === '/') {
+  } else if (req.url === '/wifi') {
+    p.sendCMDgetWifi();
+    res.end('test')
+  } else if (req.url === '/iron') {
+    p.sendCMDIr(1);
+    res.end('iron')
+  } else if (req.url === '/iroff') {
+    p.sendCMDIr(0);
+    res.end('iroff')
+  } else if (req.url === '/lampon') {
+    p.sendCMDLamp(1);
+    res.end('lampon')
+  } else if (req.url === '/lampoff') {
+    p.sendCMDLamp(0);
+    res.end('lampoff')
+  } else if (req.url === '/lighton') {
+    p.sendCMDSetWhiteLight(true);
+    res.end('lighton')
+  } else if (req.url === '/lightoff') {
+    p.sendCMDSetWhiteLight(false);
+    res.end('lightoff')
+  } else if (req.url === '/reset') {
+    p.sendCMDReset();
+    res.end('reset')
+  } else if (req.url === '/reboot') {
+    p.sendCMDReboot();
+    res.end('reboot')
+  } else if (req.url === '/ptz') {
+    p.sendCMDPtzReset();
+    res.end('ptz')
+  } else if (req.url === '/params') {
+    p.sendCMDgetParams();
+    res.end('params')
+  } else if (req.url === '/fw') {
+    p.sendCMDGetDeviceFirmwareInfo();
+    res.end('fw')
+  }  else if (req.url === '/') {
     res.statusCode = 200
     res.setHeader('Content-Type', 'text/html; charset=utf-8')
     res.end(
