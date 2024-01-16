@@ -390,7 +390,6 @@ class PPPP extends EventEmitter {
       cmd: command
     }
     let strData = JSON.stringify({ ...data, ...args, ...fixed_data})
-    console.log(strData)
     this.sendCMDPacket(strData)
   }
 
@@ -683,6 +682,7 @@ class PPPP extends EventEmitter {
       this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
       this.sendEnc(Buffer.from([MCAM, MSG_CLOSE, 0, 0]))
     }
+    this.socket.close()
   }
 }
 
