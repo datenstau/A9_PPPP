@@ -11,24 +11,41 @@ commander
 const options = commander.opts()
 console.log(options)
 const PPPP = require('./pppp')
-const p = new PPPP(options)
 
-p.on('connected', (data) => {
-  console.log('connected!', data)
-  // p.sendCMDgetParams()
-  // p.sendCMDGetDeviceFirmwareInfo()
-  p.sendCMDrequestVideo1()
-})
+let p = null
 
-p.on('videoFrame', (videoFrame) => {
-  // console.log(videoFrame)
-  let s = '--xxxxxxkkdkdkdkdkdk__BOUNDARY\r\n'
-  s += 'Content-Type: image/jpeg\r\n\r\n'
-  videoStream.write(Buffer.from(s))
-  videoStream.write(videoFrame.frame)
-})
+function setupPPPP() {
+  p = new PPPP(options)
 
-p.on('cmd', console.log)
+  p.on('log', console.log)
+
+  p.on('connected', (address, port) => {
+    console.log(`Connected to camera at ${address}:${port}`)
+    setTimeout(() => {
+      p.sendCMDgetParams()
+    }, 1000, p)
+    // p.sendCMDGetDeviceFirmwareInfo()
+    p.sendCMDrequestVideo1()
+  })
+
+  p.on('disconnected', (address, port) => {
+    console.log(`Disconnected from camera at ${address}:${port}`)
+
+  })
+
+  p.on('videoFrame', (videoFrame) => {
+    // console.log(videoFrame)
+    let s = '--xxxxxxkkdkdkdkdkdk__BOUNDARY\r\n'
+    s += 'Content-Type: image/jpeg\r\n\r\n'
+    videoStream.write(Buffer.from(s))
+    videoStream.write(videoFrame.frame)
+  })
+
+  p.on('cmd', console.log)
+}
+
+setupPPPP()
+
 
 //http server with mjpeg
 const PassThrough = require('stream').PassThrough
