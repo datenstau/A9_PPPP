@@ -103,7 +103,6 @@ class PPPP extends EventEmitter {
       const address = this.socket.address()
       console.log(`socket listening ${address.address}:${address.port}`)
       this.socket.setBroadcast(true)
-
       this.sendBroadcast()
     })
 
@@ -114,8 +113,16 @@ class PPPP extends EventEmitter {
         this.socket.send(d, 3300, IP_DEBUG_MSG)
       }
 
-      let p = this.parsePacket(d)
-      this.handlePacket(p, msg, rinfo)
+      try {
+        let p = this.parsePacket(d)
+        try {
+          this.handlePacket(p, msg, rinfo)
+        } catch (e) {
+          console.error(`Error while handling packet: {e.message}`)
+        }
+      } catch (e) {
+        console.error(`Error while parsing packet: {e.message}`)
+      }
 
     })
 
@@ -223,7 +230,6 @@ class PPPP extends EventEmitter {
         if (this.isConnected) {
           this.isConnected = false
           this.emit('disconnected', this.IP_CAM, this.PORT_CAM)
-          this.sendBroadcast()
         }
         // }, 3000, we);
         let buf = Buffer.alloc(4)

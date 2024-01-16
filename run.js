@@ -36,7 +36,7 @@ function setupPPPP() {
 
   p.on('disconnected', (address, port) => {
     console.log(`Disconnected from camera at ${address}:${port}`)
-
+    setupPPPP()
   })
 
   p.on('videoFrame', (videoFrame) => {
