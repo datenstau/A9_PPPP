@@ -96,17 +96,17 @@ function setupPPPP() {
 
 setupPPPP()
 
-var url = require('url')
 function makeUrl(uri, params) {
-  const newUrl = new URL(uri);
+  const newUrl = ""
   for (let key in params) {
     if (params.hasOwnProperty(key)) {
-      if (!newUrl.searchParams.has(key)) {
-        newUrl.searchParams.append(key, params[key])
+      if (newUrl.length > 0) {
+        newUrl += '&'
       }
+      newUrl += key + '=' + params[key]
     }
   }
-  return myUrlWithParams.href
+  return uri + '?' + newUrl
 }
 
 function makeNavItem(url, text) {
@@ -122,6 +122,7 @@ var videoStream = new PassThrough()
 
 const http = require('http')
 const fs = require('fs')
+var url = require('url')
 var path = require('path')
 const querystring = require('querystring')
 const server = http.createServer((req, res) => {
