@@ -96,6 +96,19 @@ function setupPPPP() {
 
 setupPPPP()
 
+var url = require('url')
+function makeUrl(uri, params) {
+  const newUrl = new URL(uri);
+  for (let key in params) {
+    if (params.hasOwnProperty(key)) {
+      if (!newUrl.searchParams.has(key)) {
+        newUrl.searchParams.append(key, params[key])
+      }
+    }
+  }
+  return myUrlWithParams.href
+}
+
 function makeNavItem(url, text) {
   return `<li class="nav-item"><a class="nav-link" href="${url}">${text}</a></li>`
 }
@@ -109,7 +122,6 @@ var videoStream = new PassThrough()
 
 const http = require('http')
 const fs = require('fs')
-var url = require('url')
 var path = require('path')
 const querystring = require('querystring')
 const server = http.createServer((req, res) => {
@@ -133,14 +145,14 @@ const server = http.createServer((req, res) => {
       navitems = ""
       for (let key in pages) {
         if (pages.hasOwnProperty(key)) {
-          navitems += makeNavItem(pages[key], key)
+          navitems += makeNavItem(makeUrl(pages[key], query), key)
         }
       }
       content = content.replace("{{navitems}}", navitems)
       buttons = ""
       for (let key in endpoints) {
         if (endpoints.hasOwnProperty(key)) {
-          buttons += makeButton(endpoints[key])
+          buttons += makeButton(makeUrl(endpoints[key], query), key)
         }
       }
       content = content.replace("{{buttons}}", buttons)
