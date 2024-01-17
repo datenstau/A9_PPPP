@@ -6,12 +6,18 @@ commander
 .option('-p, --port <value>', 'port number to use, default 3000', 3000)
 .option('-t, --thisip <value>','IP of the interface to bind')
 .option('-b, --broadcastip <value>','IP of the interface to bind','255.255.255.255')
+.option('-a, --audio', 'Run with audio tunneling support (requires "speaker" npm package')
+.option('-r, --reconnect', 'Automatically restart the connection once disconnected')
+.option('-pw, --password <value>', 'Require a password as a ?pw= query parameter to use the webserver')
 .option('-e, --eval', 'eval mode, WARNING ⚠️ DO NOT USE THIS IN PRODUCTION')
 .parse(process.argv);
 
 const options = commander.opts()
 console.log(options)
 const PPPP = require('./pppp')
+if (options.audio) {
+  const speaker = require('./speaker')
+}
 
 let p = null
 
@@ -27,16 +33,26 @@ function setupPPPP() {
 
   p.on('connected', (address, port) => {
     console.log(`Connected to camera at ${address}:${port}`)
-    setTimeout(() => {
-      p.sendCMDgetParams()
-    }, 1000, p)
-    // p.sendCMDGetDeviceFirmwareInfo()
-    p.sendCMDrequestVideo1()
+    setTimeout(p.sendCMDgetParams.bind(p), 1000)
+    if (options.audio) {
+      setTimeout(p.sendCMDrequestAudio.bind(p), 200)
+    }
+    setTimeout(p.sendCMDrequestVideo1.bind(p), 100)
   })
 
   p.on('disconnected', (address, port) => {
     console.log(`Disconnected from camera at ${address}:${port}`)
-    setupPPPP()
+    if (options.reconnect) {
+      console.log("Reconnecting ...")
+      setupPPPP()
+    }
+  })
+
+  p.on('audioFrame', (audioFrame) => {
+    if (options.audio) {
+      speaker.write(audioFrame.frame)
+    }
+    // console.log(audioFrame)
   })
 
   p.on('videoFrame', (videoFrame) => {
@@ -68,6 +84,13 @@ const server = http.createServer((req, res) => {
     const purl = url.parse(req.url); // console.log(purl)
     const ppath = path.parse(purl.pathname); // console.log(ppath)
     const query  = querystring.parse(purl.query); //  console.log(query)
+    if (options.password) {
+      if (query['pw'] !== options.password) {
+        res.statusCode = 403
+        res.end(JSON.stringify({message: 'invalid password' }))
+        return
+      }
+    }
     if (req.url === '/') {
       res.statusCode = 200
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
@@ -80,6 +103,8 @@ const server = http.createServer((req, res) => {
         'multipart/x-mixed-replace; boundary="xxxxxxkkdkdkdkdkdk__BOUNDARY"'
       )
       videoStream.pipe(res)
+    } else if (req.url === '/exit') {
+      process.exit()
     } else if (req.url === '/reconnect') {
       setupPPPP()
     } else if (purl.pathname.startsWith('/func/')) { // WARNING ⚠️ DO NOT USE THIS IN PRODUCTION

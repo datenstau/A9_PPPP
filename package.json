@@ -18,5 +18,8 @@
   "homepage": "https://github.com/datenstau/A9_PPPP#readme",
   "dependencies": {
     "commander": "^11.0.0"
+  },
+  "optionalDependencies": {
+    "speaker": "^0.5.4"
   }
 }
