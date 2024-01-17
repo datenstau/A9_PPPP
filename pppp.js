@@ -623,6 +623,13 @@ class PPPP extends EventEmitter {
     this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: direction});
   }
 
+  sendCMDPtzStop() {
+    this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: PTZ_PAN_LEFT_STOP});
+    this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: PTZ_PAN_RIGHT_STOP});
+    this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: PTZ_TILT_DOWN_STOP});
+    this.sendCommand(CMD_PTZ_CONTROL, { parms: 0, value: PTZ_TILT_UP_STOP});
+  }
+
   sendCMDPtzReset() {
     this.sendCommand(CMD_PTZ_CONTROL, { parms: 1, value: 132});
   }

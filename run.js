@@ -5,8 +5,8 @@ commander
 .usage('[OPTIONS]...')
 .option('-p, --port <value>', 'port number to use, default 3000', 3000)
 .option('-t, --thisip <value>','IP of the interface to bind')
-.option('-b, --broadcastip <value>','IP of the interface to bind','255.255.255.255')
-.option('-v, --video <value>', 'Request video stream on startup (lq,hq)', 'hq')
+.option('-b, --broadcastip <value>','IP Range to broadcast to','255.255.255.255')
+.option('-v, --video <value>', 'Request video stream on startup (lq,hq)'/*,'hq'*/)
 .option('-a, --audio', 'Run with audio tunneling support (requires "speaker" npm package)')
 .option('-r, --reconnect', 'Automatically restart the connection once disconnected')
 .option('-pw, --password <value>', 'Require a password as a ?pw= query parameter to use the webserver')
@@ -19,21 +19,22 @@ const pages = {
 }
 const endpoints = {
   "Reconnect": "/reconnect",
-  "Light on": "/func/sendCMDSetWhiteLight?isOn=true",
-  "Light off": "/func/sendCMDSetWhiteLight?isOn=false",
-  "IR on": "/func/sendCMDIr?isOn=true",
-  "IR off": "/func/sendCMDIr?isOn=false",
-  "Lamp on": "/func/sendCMDLamp?isOn=true",
-  "Lamp off": "/func/sendCMDLamp?isOn=false",
-  "Rotate up start": "/func/sendCMDPtzControl?direction=0",
-  "Rotate up end": "/func/sendCMDPtzControl?direction=1",
-  "Rotate down start": "/func/sendCMDPtzControl?direction=2",
-  "Rotate down end": "/func/sendCMDPtzControl?direction=3",
-  "Rotate left start": "/func/sendCMDPtzControl?direction=4",
-  "Rotate left end": "/func/sendCMDPtzControl?direction=5",
-  "Rotate rightstart": "/func/sendCMDPtzControl?direction=6",
-  "Rotate right end": "/func/sendCMDPtzControl?direction=7",
-  "Rotate reset": "/func/sendCMDPtzReset",
+  "Light ON": "/func/sendCMDSetWhiteLight?isOn=true",
+  "Light OFF": "/func/sendCMDSetWhiteLight?isOn=false",
+  "IR ON": "/func/sendCMDIr?isOn=true",
+  "IR OFF": "/func/sendCMDIr?isOn=false",
+  "Lamp ON": "/func/sendCMDLamp?isOn=true",
+  "Lamp OFF": "/func/sendCMDLamp?isOn=false",
+  "Up": "/func/sendCMDPtzControl?direction=0",
+  // "Rotate Up end": "/func/sendCMDPtzControl?direction=1",
+  "Down": "/func/sendCMDPtzControl?direction=2",
+  // "Rotate Down end": "/func/sendCMDPtzControl?direction=3",
+  "Left": "/func/sendCMDPtzControl?direction=4",
+  // "Rotate Left end": "/func/sendCMDPtzControl?direction=5",
+  "Right": "/func/sendCMDPtzControl?direction=6",
+  // "Rotate Right end": "/func/sendCMDPtzControl?direction=7",
+  "Rotate STOP": "/func/sendCMDPtzStop",
+  "Rotate Reset": "/func/sendCMDPtzReset",
   "Reboot": "/func/sendCMDReboot",
   "Exit": "/exit",
 }
