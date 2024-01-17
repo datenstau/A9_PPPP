@@ -62,22 +62,11 @@ function setupPPPP() {
     setTimeout(p.sendCMDgetParams.bind(p), 1000)
   })
 
-  p.on('cmd', (data) => {
-    let data2 = data;
-    console.log(data2)
-    console.log(data2["cmd"])
+  p.on('cmd', (data, raw) => {
+    console.log(data)
     if (firstrun) {
-      console.log(`First Run: ${firstrun}`)
-      console.log(`Has cmd: ${data.hasOwnProperty("cmd")}`)
-      console.log(`cmd: ${data.cmd}`)
-      console.log(`cmd: ${data['cmd']}`)
-      console.log(`cmd: ${data["cmd"]}`)
-      console.log(data.cmd)
-      console.log(data["cmd"])
-      console.log(typeof data["cmd"])
-      console.log(`data: ${data}`)
       if (data.hasOwnProperty("cmd")) {
-        if (data['cmd'] === 101) {
+        if (data.cmd === 101) {
           firstrun = false;
           setTimeout(p.sendCMDrequestVideo1.bind(p), 1000)
           if (options.audio) {

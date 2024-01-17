@@ -298,8 +298,10 @@ class PPPP extends EventEmitter {
           console.log('CMD Response received')
           if (0 == p.data.indexOf(Buffer.from('060a', 'hex'))) {
             let data = p.data.subarray(8)
-            let _msg = data.toString('ascii')
-            this.emit('cmd', _msg)
+            let raw = data.toString('ascii')
+            let json = {}
+            try { json = JSON.parse(raw) } catch (e) { this.emit('log', `Error while parsing JSON: ${e.message}`) }
+            this.emit('cmd', json, raw)
           }
         }
 
