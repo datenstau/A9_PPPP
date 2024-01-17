@@ -101,14 +101,8 @@ var url = require('url')
 var path = require('path')
 const querystring = require('querystring')
 
-function mergeUrl(url, params) {
-  let purl = url.parse(url)
-  let query = querystring.parse(purl.query)
-  for (let key in params) {
-    query[key] = params[key]
-  }
-  purl.query = querystring.stringify(query)
-  return url.format(purl)
+function mergeRelateUrlQueryParams(baseUrl, params) {
+  
 }
 
 function makeNavItem(url, text) {
@@ -148,8 +142,9 @@ function splitDict(dict, chunkSize) {
 const PassThrough = require('stream').PassThrough
 var videoStream = new PassThrough()
 
-const http = require('http')
+
 const fs = require('fs')
+const http = require('http')
 const server = http.createServer((req, res) => {
   try {
     if (req.url === '/favicon.ico') return
