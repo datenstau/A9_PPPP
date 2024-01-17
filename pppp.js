@@ -418,16 +418,19 @@ class PPPP extends EventEmitter {
 
   sendCMDrequestVideo1() {
     //"1080p" "HD" with 640x480
+    this.emit('log', 'requesting 640x480 video stream')
     this.sendCommand(CMD_STREAM, { video: 1 });
   }
 
   sendCMDrequestVideo2() {
     //"720p" "HD" with 320x240
+    this.emit('log', 'requesting 320x240 video stream')
     this.sendCommand(CMD_STREAM, { video: 2 });
   }
 
   sendCMDrequestAudio() {
     //Strange ADPCM format
+    this.emit('log', 'requesting ADPCM audio stream')
     this.sendCommand(CMD_STREAM, { audio: 1 });
   }
 

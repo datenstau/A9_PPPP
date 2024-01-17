@@ -45,6 +45,7 @@ if (options.audio) {
 }
 
 let p = null
+let firstrun = true
 
 function setupPPPP() {
   if (p) {
@@ -59,17 +60,31 @@ function setupPPPP() {
   p.on('connected', (address, port) => {
     console.log(`Connected to camera at ${address}:${port}`)
     setTimeout(p.sendCMDgetParams.bind(p), 1000)
-    if (options.audio) {
-      setTimeout(p.sendCMDrequestAudio.bind(p), 200)
-    }
-    setTimeout(p.sendCMDrequestVideo1.bind(p), 100)
   })
 
-  p.on('disconnected', (address, port) => {
-    console.log(`Disconnected from camera at ${address}:${port}`)
-    if (options.reconnect) {
-      console.log("Reconnecting ...")
-      setupPPPP()
+  p.on('cmd', (data) => {
+    let data2 = data;
+    console.log(data2)
+    console.log(data2["cmd"])
+    if (firstrun) {
+      console.log(`First Run: ${firstrun}`)
+      console.log(`Has cmd: ${data.hasOwnProperty("cmd")}`)
+      console.log(`cmd: ${data.cmd}`)
+      console.log(`cmd: ${data['cmd']}`)
+      console.log(`cmd: ${data["cmd"]}`)
+      console.log(data.cmd)
+      console.log(data["cmd"])
+      console.log(typeof data["cmd"])
+      console.log(`data: ${data}`)
+      if (data.hasOwnProperty("cmd")) {
+        if (data['cmd'] === 101) {
+          firstrun = false;
+          setTimeout(p.sendCMDrequestVideo1.bind(p), 1000)
+          if (options.audio) {
+            setTimeout(p.sendCMDrequestAudio.bind(p), 2000)
+          }
+        }
+      }
     }
   })
 
@@ -92,7 +107,13 @@ function setupPPPP() {
     console.log(`socket error: ${err}`)
   })
 
-  p.on('cmd', console.log)
+  p.on('disconnected', (address, port) => {
+    console.log(`Disconnected from camera at ${address}:${port}`)
+    if (options.reconnect) {
+      console.log("Reconnecting ...")
+      setupPPPP()
+    }
+  })
 }
 
 setupPPPP()
