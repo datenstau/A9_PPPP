@@ -118,7 +118,7 @@ const server = http.createServer((req, res) => {
     console.log('[' + req.socket.remoteAddress + '] ' + req.method + ': ' + req.url)
     const purl = url.parse(req.url); // console.log(purl)
     const ppath = path.parse(purl.pathname); // console.log(ppath)
-    const query  = querystring.parse(purl.query); //  console.log(query)
+    const query  = querystring.parse(purl.query); // console.log(query)
     if (options.password) {
       if (query['pw'] !== options.password) {
         res.statusCode = 403
@@ -126,7 +126,7 @@ const server = http.createServer((req, res) => {
         return
       }
     }
-    if (req.url === '/') {
+    if (purl.pathname === '/') {
       res.statusCode = 200
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
       let content = fs.readFileSync("index.html", "utf-8");
@@ -151,15 +151,15 @@ const server = http.createServer((req, res) => {
       res.end(
         '<!DOCTYPE html>\r\n<http><head></head><body><img src="/v.mjpg"></body></html>'
       )
-    } else if (req.url === '/v.mjpg') {
+    } else if (purl.pathname === '/v.mjpg') {
       res.setHeader(
         'Content-Type',
         'multipart/x-mixed-replace; boundary="xxxxxxkkdkdkdkdkdk__BOUNDARY"'
       )
       videoStream.pipe(res)
-    } else if (req.url === '/exit') {
+    } else if (purl.pathname === '/exit') {
       process.exit()
-    } else if (req.url === '/reconnect') {
+    } else if (purl.pathname === '/reconnect') {
       setupPPPP()
     } else if (purl.pathname.startsWith('/func/')) { // WARNING ⚠️ DO NOT USE THIS IN PRODUCTION
       if (!options.eval) {
@@ -170,6 +170,7 @@ const server = http.createServer((req, res) => {
       let name = ppath.base
       let args = ""
       for (let e in query) {
+        if (e === "pw") continue;
         if (args.length > 0) {
           args += ','
         }
