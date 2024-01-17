@@ -142,14 +142,22 @@ class PPPP extends EventEmitter {
   }
 
   sendBroadcast() {
-    const message = Buffer.from('2cba5f5d', 'hex')
-
-    this.socket.send(message, 32108, this.broadcastDestination)
-    console.log('broadcast Message sent.')
-
-    if (!this.isConnected && this.punchCount == 0) {
-      setTimeout(this.sendBroadcast.bind(this), this.reconnectDelay)
-      this.reconnectDelay += 1
+    // if (!this.isConnected) {
+    //   this.emit('log', 'Trying to send broadcast while not connected! Aborting.')
+    //   return
+    // }
+    try {
+      const message = Buffer.from('2cba5f5d', 'hex')
+  
+      this.socket.send(message, 32108, this.broadcastDestination)
+      console.log('broadcast Message sent.')
+  
+      if (!this.isConnected && this.punchCount == 0) {
+        setTimeout(this.sendBroadcast.bind(this), this.reconnectDelay)
+        this.reconnectDelay += 1
+      }
+    } catch (e) {
+      this.emit('log', `Error while sending broadcast: ${e.message}`)
     }
   }
 
