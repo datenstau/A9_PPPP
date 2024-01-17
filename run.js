@@ -97,23 +97,28 @@ function setupPPPP() {
 
 setupPPPP()
 
-function makeUrl(uri, params) {
-  let newUrl = ""
+var url = require('url')
+var path = require('path')
+const querystring = require('querystring')
+
+function mergeUrl(url, params) {
+  let purl = url.parse(url)
+  let query = querystring.parse(purl.query)
   for (let key in params) {
-    if (newUrl.length > 0) {
-      newUrl += '&'
-    }
-    console.log(params[key])
-    newUrl += encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+    query[key] = params[key]
   }
-  return uri + '?' + newUrl
+  purl.query = querystring.stringify(query)
+  return url.format(purl)
 }
 
 function makeNavItem(url, text) {
   return `<li class="nav-item"><a class="nav-link" href="${url}">${text}</a></li>`
 }
-function makeButton(url, text) {
+function makeHrefButton(url, text) {
   return `<div class="col col-md col-lg mb"><button type="button" onclick="window.location.href='${url}';">${text}</button></div>`
+}
+function makeFormButton(url, text) {
+  return `<div class="col col-md col-lg mb"><input type="submit" class="btn btn-primary w-100" formaction='${url}'" value='${text}'></div>`
 }
 function makeButtonRow(buttons) {
   return `<div class="row">${buttons}</div>`
@@ -145,9 +150,6 @@ var videoStream = new PassThrough()
 
 const http = require('http')
 const fs = require('fs')
-var url = require('url')
-var path = require('path')
-const querystring = require('querystring')
 const server = http.createServer((req, res) => {
   try {
     if (req.url === '/favicon.ico') return
@@ -169,14 +171,14 @@ const server = http.createServer((req, res) => {
       navitems = ""
       for (let key in pages) {
         if (pages.hasOwnProperty(key)) {
-          navitems += makeNavItem(makeUrl(pages[key], query), key)
+          navitems += makeNavItem(mergeUrl(pages[key], query), key)
         }
       }
       content = content.replace("{{navitems}}", navitems)
       buttons = ""
       for (let key in endpoints) {
         if (endpoints.hasOwnProperty(key)) {
-          buttons += makeButton(makeUrl(endpoints[key], query), key)
+          buttons += makeFormButton(mergeUrl(endpoints[key], query), key)
         }
       }
       content = content.replace("{{buttons}}", buttons)
