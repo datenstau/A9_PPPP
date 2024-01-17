@@ -101,8 +101,14 @@ var url = require('url')
 var path = require('path')
 const querystring = require('querystring')
 
-function mergeRelateUrlQueryParams(baseUrl, params) {
-  
+function mergeUrl(baseUrl, params) {
+  let purl = url.parse(baseUrl)
+  let query = querystring.parse(purl.query)
+  for (let key in params) {
+      query[key] = params[key]
+  }
+  purl.search = querystring.stringify(query)
+  return url.format(purl)
 }
 
 function makeNavItem(url, text) {
@@ -110,6 +116,9 @@ function makeNavItem(url, text) {
 }
 function makeHrefButton(url, text) {
   return `<div class="col col-md col-lg mb"><button type="button" onclick="window.location.href='${url}';">${text}</button></div>`
+}
+function makeAjaxButton(url, text) {
+  return `<div class="col col-md col-lg mb"><button type="button" onclick="sendAjaxRequest('${url}');">${text}</button></div>`
 }
 function makeFormButton(url, text) {
   return `<div class="col col-md col-lg mb"><input type="submit" class="btn btn-primary w-100" formaction='${url}'" value='${text}'></div>`
@@ -173,16 +182,16 @@ const server = http.createServer((req, res) => {
       buttons = ""
       for (let key in endpoints) {
         if (endpoints.hasOwnProperty(key)) {
-          buttons += makeFormButton(mergeUrl(endpoints[key], query), key)
+          buttons += makeAjaxButton(mergeUrl(endpoints[key], query), key)
         }
       }
       content = content.replace("{{buttons}}", buttons)
       res.end(content)
-    } else if (req.url === '/v') {
+    } else if (purl.pathname === '/v') {
       res.statusCode = 200
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
       res.end(
-        '<!DOCTYPE html>\r\n<http><head></head><body><img src="/v.mjpg"></body></html>'
+        '<!DOCTYPE html>\r\n<http><head></head><body><img src="'+mergeUrl("/v.mjpg", query)+'"></body></html>'
       )
     } else if (purl.pathname === '/v.mjpg') {
       res.setHeader(
