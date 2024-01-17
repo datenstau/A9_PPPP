@@ -18,7 +18,6 @@ const pages = {
 }
 const endpoints = {
   "Reconnect": "/reconnect",
-  "Reboot": "/func/sendCMDReboot",
   "Light on": "/func/sendCMDSetWhiteLight?isOn=true",
   "Light off": "/func/sendCMDSetWhiteLight?isOn=false",
   "IR on": "/func/sendCMDIr?isOn=true",
@@ -33,7 +32,9 @@ const endpoints = {
   "Rotate left end": "/func/sendCMDPtzControl?direction=5",
   "Rotate rightstart": "/func/sendCMDPtzControl?direction=6",
   "Rotate right end": "/func/sendCMDPtzControl?direction=7",
-  "Rotate reset": "/func/sendCMDPtzReset"
+  "Rotate reset": "/func/sendCMDPtzReset",
+  "Reboot": "/func/sendCMDReboot",
+  "Exit": "/exit",
 }
 
 const options = commander.opts()
@@ -97,14 +98,13 @@ function setupPPPP() {
 setupPPPP()
 
 function makeUrl(uri, params) {
-  const newUrl = ""
+  let newUrl = ""
   for (let key in params) {
-    if (params.hasOwnProperty(key)) {
-      if (newUrl.length > 0) {
-        newUrl += '&'
-      }
-      newUrl += key + '=' + params[key]
+    if (newUrl.length > 0) {
+      newUrl += '&'
     }
+    console.log(params[key])
+    newUrl += encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
   }
   return uri + '?' + newUrl
 }
@@ -112,8 +112,31 @@ function makeUrl(uri, params) {
 function makeNavItem(url, text) {
   return `<li class="nav-item"><a class="nav-link" href="${url}">${text}</a></li>`
 }
-function makeButton(url) {
-  return `<button onclick="window.location.href='${url}';">${text}</button>`
+function makeButton(url, text) {
+  return `<div class="col col-md col-lg mb"><button type="button" onclick="window.location.href='${url}';">${text}</button></div>`
+}
+function makeButtonRow(buttons) {
+  return `<div class="row">${buttons}</div>`
+}
+function splitDict(dict, chunkSize) {
+  let chunks = []
+  let chunk = {}
+  let i = 0
+  for (let key in dict) {
+    if (dict.hasOwnProperty(key)) {
+      if (i >= chunkSize) {
+        chunks.push(chunk)
+        chunk = {}
+        i = 0
+      }
+      chunk[key] = dict[key]
+      i++
+    }
+  }
+  if (i > 0) {
+    chunks.push(chunk)
+  }
+  return chunks
 }
 
 //http server with mjpeg
