@@ -12,6 +12,30 @@ commander
 .option('-e, --eval', 'eval mode, WARNING ⚠️ DO NOT USE THIS IN PRODUCTION')
 .parse(process.argv);
 
+const pages = {
+  "Embedded Video": "/v",
+  "Raw Video": "/v.mjpg",
+}
+const endpoints = {
+  "Reconnect": "/reconnect",
+  "Reboot": "/func/sendCMDReboot",
+  "Light on": "/func/sendCMDSetWhiteLight?isOn=true",
+  "Light off": "/func/sendCMDSetWhiteLight?isOn=false",
+  "IR on": "/func/sendCMDIr?isOn=true",
+  "IR off": "/func/sendCMDIr?isOn=false",
+  "Lamp on": "/func/sendCMDLamp?isOn=true",
+  "Lamp off": "/func/sendCMDLamp?isOn=false",
+  "Rotate up start": "/func/sendCMDPtzControl?direction=0",
+  "Rotate up end": "/func/sendCMDPtzControl?direction=1",
+  "Rotate down start": "/func/sendCMDPtzControl?direction=2",
+  "Rotate down end": "/func/sendCMDPtzControl?direction=3",
+  "Rotate left start": "/func/sendCMDPtzControl?direction=4",
+  "Rotate left end": "/func/sendCMDPtzControl?direction=5",
+  "Rotate rightstart": "/func/sendCMDPtzControl?direction=6",
+  "Rotate right end": "/func/sendCMDPtzControl?direction=7",
+  "Rotate reset": "/func/sendCMDPtzReset"
+}
+
 const options = commander.opts()
 console.log(options)
 const PPPP = require('./pppp')
@@ -72,12 +96,19 @@ function setupPPPP() {
 
 setupPPPP()
 
+function makeNavItem(url, text) {
+  return `<li class="nav-item"><a class="nav-link" href="${url}">${text}</a></li>`
+}
+function makeButton(url) {
+  return `<button onclick="window.location.href='${url}';">${text}</button>`
+}
 
 //http server with mjpeg
 const PassThrough = require('stream').PassThrough
 var videoStream = new PassThrough()
 
 const http = require('http')
+const fs = require('fs')
 var url = require('url')
 var path = require('path')
 const querystring = require('querystring')
@@ -96,6 +127,25 @@ const server = http.createServer((req, res) => {
       }
     }
     if (req.url === '/') {
+      res.statusCode = 200
+      res.setHeader('Content-Type', 'text/html; charset=utf-8')
+      let content = fs.readFileSync("index.html", "utf-8");
+      navitems = ""
+      for (let key in pages) {
+        if (pages.hasOwnProperty(key)) {
+          navitems += makeNavItem(pages[key], key)
+        }
+      }
+      content = content.replace("{{navitems}}", navitems)
+      buttons = ""
+      for (let key in endpoints) {
+        if (endpoints.hasOwnProperty(key)) {
+          buttons += makeButton(endpoints[key])
+        }
+      }
+      content = content.replace("{{buttons}}", buttons)
+      res.end(content)
+    } else if (req.url === '/v') {
       res.statusCode = 200
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
       res.end(
