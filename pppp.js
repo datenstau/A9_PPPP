@@ -91,12 +91,15 @@ class PPPP extends EventEmitter {
     this.isConnected = false
     this.punchCount = 0
 
+    this.reconnectDelay = 500
+
     this.broadcastDestination=options.broadcastip,
     this.myIpAddressToBind=options.thisip
 
     this.socket.on('error', (err) => {
-      console.log(`socket error:\n${err.stack}`)
+      console.log(`closing socket! error:\n${err.stack}`)
       this.socket.close()
+      this.emit('error', (err))
     })
 
     this.socket.on('listening', () => {
@@ -145,7 +148,8 @@ class PPPP extends EventEmitter {
     console.log('broadcast Message sent.')
 
     if (!this.isConnected && this.punchCount == 0) {
-      setTimeout(this.sendBroadcast.bind(this), 100)
+      setTimeout(this.sendBroadcast.bind(this), this.reconnectDelay)
+      this.reconnectDelay += 1
     }
   }
 
@@ -203,6 +207,7 @@ class PPPP extends EventEmitter {
 
         if (!this.isConnected) {
           this.isConnected = true
+          this.reconnectDelay = 500
           setTimeout(() => {
             this.emit('connected', rinfo.address, rinfo.port)
           }, 500)

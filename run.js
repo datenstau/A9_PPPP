@@ -63,6 +63,10 @@ function setupPPPP() {
     videoStream.write(videoFrame.frame)
   })
 
+  p.on('error', (err) => {
+    console.log(`socket error: ${err}`)
+  })
+
   p.on('cmd', console.log)
 }
 
