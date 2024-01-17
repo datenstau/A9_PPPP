@@ -6,7 +6,8 @@ commander
 .option('-p, --port <value>', 'port number to use, default 3000', 3000)
 .option('-t, --thisip <value>','IP of the interface to bind')
 .option('-b, --broadcastip <value>','IP of the interface to bind','255.255.255.255')
-.option('-a, --audio', 'Run with audio tunneling support (requires "speaker" npm package')
+.option('-v, --video <value>', 'Request video stream on startup (lq,hq)', 'hq')
+.option('-a, --audio', 'Run with audio tunneling support (requires "speaker" npm package)')
 .option('-r, --reconnect', 'Automatically restart the connection once disconnected')
 .option('-pw, --password <value>', 'Require a password as a ?pw= query parameter to use the webserver')
 .option('-e, --eval', 'eval mode, WARNING ⚠️ DO NOT USE THIS IN PRODUCTION')
@@ -68,7 +69,11 @@ function setupPPPP() {
       if (data.hasOwnProperty("cmd")) {
         if (data.cmd === 101) {
           firstrun = false;
-          setTimeout(p.sendCMDrequestVideo1.bind(p), 1000)
+          if (options.video === 'hq') {
+            setTimeout(p.sendCMDrequestVideo1.bind(p), 1000)
+          } else if (options.video === 'lq') {
+            setTimeout(p.sendCMDrequestVideo2.bind(p), 1000)
+          }
           if (options.audio) {
             setTimeout(p.sendCMDrequestAudio.bind(p), 2000)
           }
