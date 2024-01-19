@@ -6,7 +6,7 @@ commander
 .option('-p, --port <value>', 'port number to use, default 3000', 3000)
 .option('-t, --thisip <value>','IP of the interface to bind')
 .option('-b, --broadcastip <value>','IP Range to broadcast to','255.255.255.255')
-.option('-v, --video <value>', 'Request video stream on startup (lq,hq)'/*,'hq'*/)
+.option('-vid, --video <value>', 'Request video stream on startup (lq,hq)'/*,'hq'*/)
 .option('-a, --audio', 'Run with audio tunneling support (requires "speaker" npm package)')
 .option('-r, --reconnect', 'Automatically restart the connection once disconnected')
 .option('-pw, --password <value>', 'Require a password as a ?pw= query parameter to use the webserver')
@@ -19,6 +19,9 @@ const pages = {
 }
 const endpoints = {
   "Reconnect": "/reconnect",
+  "Start Video (640x480)": "/func/sendCMDrequestVideo1",
+  "Start Video (320x240)": "/func/sendCMDrequestVideo2",
+  "Light ON": "/func/sendCMDSetWhiteLight?isOn=true",
   "Light ON": "/func/sendCMDSetWhiteLight?isOn=true",
   "Light OFF": "/func/sendCMDSetWhiteLight?isOn=false",
   "IR ON": "/func/sendCMDIr?isOn=true",
@@ -36,6 +39,7 @@ const endpoints = {
   "Rotate STOP": "/func/sendCMDPtzStop",
   "Rotate Reset": "/func/sendCMDPtzReset",
   "Reboot": "/func/sendCMDReboot",
+  "Restart": "/restart",
   "Exit": "/exit",
 }
 
@@ -52,8 +56,7 @@ let firstrun = true
 function setupPPPP() {
   if (p) {
     console.log('pppp was already open, closing...')
-    p.destroy()
-    p = null
+    stopPPPP()
   }
   p = new PPPP(options)
 
@@ -110,8 +113,35 @@ function setupPPPP() {
     }
   })
 }
+function stopPPPP() {
+  if (p) {
+    console.log("Stopping pppp")
+    p.destroy()
+    p = null
+  }
+}
 
-setupPPPP()
+const { spawn } = require('child_process')
+function restartApp() {
+  if (p) {
+    stopPPPP()
+  }
+  // Spawn a new Node.js process with the same arguments as the current process
+  // The first argument (process.argv[0]) is the path to the Node.js executable
+  // The second argument (process.argv.slice(1)) contains the remaining arguments
+  const child = spawn(process.argv[0], process.argv.slice(1), {
+    cwd: process.cwd(), // Set the working directory to the current directory
+    detached: true, // The child process should run independently of the parent
+    stdio: 'inherit' // Use the parent's stdio streams
+  })
+
+  // Unreference the child process from the parent, so the parent can exit independently of the child
+  child.unref()
+
+  // Exit the current process
+  process.exit()
+}
+
 
 var url = require('url')
 var path = require('path')
@@ -203,20 +233,36 @@ const server = http.createServer((req, res) => {
       }
       content = content.replace("{{buttons}}", buttons)
       res.end(content)
-    } else if (purl.pathname === '/v') {
-      res.statusCode = 200
-      res.setHeader('Content-Type', 'text/html; charset=utf-8')
-      res.end(
-        '<!DOCTYPE html>\r\n<http><head></head><body><img src="'+mergeUrl("/v.mjpg", query)+'"></body></html>'
-      )
-    } else if (purl.pathname === '/v.mjpg') {
-      res.setHeader(
-        'Content-Type',
-        'multipart/x-mixed-replace; boundary="xxxxxxkkdkdkdkdkdk__BOUNDARY"'
-      )
-      videoStream.pipe(res)
+    } else if (purl.pathname.startsWith('/v')) {
+      if (!options.video) {
+        let quality = query['quality'] || query['q'] || null
+        switch (quality) {
+          case 'hq':
+          case 'hd':
+            p.sendCMDrequestVideo1()
+            break;
+          case 'lq':
+          case 'ld':
+            p.sendCMDrequestVideo2()
+        }
+      }
+      if (purl.pathname === '/v') {
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'text/html; charset=utf-8')
+        res.end(
+          '<!DOCTYPE html>\r\n<http><head></head><body><img src="'+mergeUrl("/v.mjpg", query)+'"></body></html>'
+        )
+      } else if (purl.pathname === '/v.mjpg') {
+        res.setHeader(
+          'Content-Type',
+          'multipart/x-mixed-replace; boundary="xxxxxxkkdkdkdkdkdk__BOUNDARY"'
+        )
+        videoStream.pipe(res)
+      }
     } else if (purl.pathname === '/exit') {
       process.exit()
+    } else if (purl.pathname === '/restart') {
+      restartApp()
     } else if (purl.pathname === '/reconnect') {
       setupPPPP()
     } else if (purl.pathname.startsWith('/func/')) { // WARNING ⚠️ DO NOT USE THIS IN PRODUCTION
@@ -263,3 +309,5 @@ process.on('SIGINT', () => {
     process.exit()
   }, 1000)
 })
+
+setupPPPP()
