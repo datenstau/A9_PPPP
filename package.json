@@ -2,7 +2,7 @@
   "name": "a9_pppp",
   "version": "1.0.0",
   "description": "Thanks to all the people in this [Home Assistant Community](https://community.home-assistant.io/t/popular-a9-mini-wi-fi-camera-the-ha-challenge/230108) thread.",
-  "main": "pppp.js\t",
+  "main": "run.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,6 +18,9 @@
   "homepage": "https://github.com/datenstau/A9_PPPP#readme",
   "dependencies": {
     "commander": "^11.0.0",
+    "reurl": "^1.0.0-rc.2"
+  },
+  "optionalDependencies": {
     "speaker": "^0.5.4"
   }
 }

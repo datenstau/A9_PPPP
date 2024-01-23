@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPPP</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">PPPP NodeJS Client</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav" id="navbar">
+                    <li class="nav-item">
+                        <!--a class="nav-link active" aria-current="page" href="#">Home</a-->
+                        {{navitems}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-3">
+        <!--form method="POST" id="ajaxform">
+            <div class="row" id="buttongrid">
+                {{-buttons}}
+            </div>
+        </form-->
+        <div class="grid" id="buttongrid">
+            {{buttons}}
+            <!--div class="col-6 col-md-4 col-lg-3 mb-3">
+                <button type="button" class="btn btn-primary w-100">Button 1</button>
+            </!--div-->
+        </div>
+    </div>
+    <script>
+        $("#ajaxform").submit(function(e) {
+            var postData = $(this).serializeArray();
+            var formURL = $(this).attr("action");
+            $.ajax({
+                url: formURL,
+                type: "POST",
+                data: postData,
+                success: function(data) {
+                }
+            });
+            e.preventDefault();
+            e.unbind();
+        });
+        function sendAjaxRequest(url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => { console.log(data); })
+                .catch(error => { console.error('Error:', error);
+            });
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+</body>
+</html>
